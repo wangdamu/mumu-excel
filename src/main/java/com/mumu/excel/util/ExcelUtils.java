@@ -39,6 +39,14 @@ public class ExcelUtils {
 
     private static DataFormatter dataFormatter = new DataFormatter();
 
+    private static Map<String, ExcelWorkbookFactory> excelWorkbookFactoryMap = new HashMap<>();
+
+    static{
+        mappingFileType2WorkbookFactory(excel2003L, new HSSFWorkbookFactory());
+        mappingFileType2WorkbookFactory(excel2007U, new XSSFWorkbookFactory());
+        mappingFileType2WorkbookFactory(excel2003csv, new CsvWorkbookFactory());
+    }
+
     public static Object getCellValue(final Cell cell, FormulaEvaluator evaluator) {
         if (cell == null) {
             return null;
@@ -79,15 +87,21 @@ public class ExcelUtils {
      */
     private static ExcelWorkbookFactory getExcelWorkbookFactory(String filename) throws IOException {
         String fileType = filename.substring(filename.lastIndexOf("."));
-        if (excel2003L.equals(fileType)) {
-            return new HSSFWorkbookFactory();
-        } else if (excel2007U.equals(fileType)) {
-            return new XSSFWorkbookFactory();  //2007+
-        }else if(excel2003csv.equals(fileType)){
-            return new CsvWorkbookFactory();  //2003-
+        ExcelWorkbookFactory excelWorkbookFactory = excelWorkbookFactoryMap.get(fileType);
+        if (excelWorkbookFactory != null) {
+            return excelWorkbookFactory;
         } else {
-            throw new IOException("解析的文件格式有误！");
+            throw new IOException(fileType + " not support");
         }
+    }
+
+    /**
+     * 建立文件后缀 --> ExcelWorkbookFactory的映射
+     * @param fileType
+     * @param excelWorkbookFactory
+     */
+    public static void mappingFileType2WorkbookFactory(String fileType, ExcelWorkbookFactory excelWorkbookFactory){
+        excelWorkbookFactoryMap.put(fileType, excelWorkbookFactory);
     }
 
     /**

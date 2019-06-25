@@ -1,7 +1,9 @@
 group 'com.mumu.reader.excel'
-version '1.0-SNAPSHOT'
+version '1.0.0'
+def artifactId = "mumu_excel"
 
 apply plugin: 'java'
+apply plugin: 'maven'
 
 sourceCompatibility = 1.8
 
@@ -23,4 +25,28 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.8.0-beta4'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+//打包源代码
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+//上传到nexus
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://192.168.206.128:8081/repository/third-party/") {
+                authentication(userName: "admin", password: "admin123")
+            }
+            pom.version = "$project.version"
+            pom.artifactId = "$artifactId"
+            pom.groupId = "$project.group"
+        }
+    }
 }

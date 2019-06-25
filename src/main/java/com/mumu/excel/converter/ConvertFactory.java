@@ -37,6 +37,10 @@ public class ConvertFactory {
         converterMap.put(Integer.class, new IntegerConverter());
         converterMap.put(long.class, new LongConverter());
         converterMap.put(Long.class, new LongConverter());
+        converterMap.put(float.class, new FloatConverter());
+        converterMap.put(Float.class, new FloatConverter());
+        converterMap.put(double.class, new DoubleConverter());
+        converterMap.put(Double.class, new DoubleConverter());
         converterMap.put(String.class, new StringConverter());
         converterMap.put(BigDecimal.class, new BigDecimalConverter());
     }

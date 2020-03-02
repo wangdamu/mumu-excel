@@ -1,5 +1,6 @@
 package com.mumu.excel;
 
+import com.mumu.excel.util.ExcelUtils;
 import org.apache.poi.ss.formula.functions.T;
 
 import java.lang.reflect.Field;
@@ -18,7 +19,7 @@ import java.util.Map;
  * @author Peter peter.wang@mulberrylearning.cn
  * @version 1.0
  */
-public class ClassMetadata<T>{
+public class ClassMetadata<T> implements IClassMetadata<T>{
     private Class<T> clazz;
     private Map<String, Method> setMethodMap;
     private Map<String, Field> fieldMap;
@@ -67,4 +68,15 @@ public class ClassMetadata<T>{
     public void setSheetName(String sheetName) {
         this.sheetName = sheetName;
     }
+
+    @Override
+    public T newInstance() throws Exception{
+        return clazz.newInstance();
+    }
+
+    @Override
+    public IIndexFieldOperator genIndexFieldOperator(ExcelRow row) {
+        return ExcelUtils.genIndexFieldMethod(row, this);
+    }
+
 }

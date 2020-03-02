@@ -143,15 +143,14 @@ public class ExcelUtils {
      * @param <T>
      * @return
      */
-    public static <T> T createDataBean(ExcelRow row, ClassMetadata<T> classMetadata, IndexFieldMethod indexFieldMethod) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        T obj = classMetadata.getClazz().newInstance();
+    public static <T> T createDataBean(ExcelRow row, IClassMetadata<T> classMetadata, IIndexFieldOperator indexFieldOperator) throws Exception {
+        T obj = classMetadata.newInstance();
         for(int c = 0; c < row.columnCount(); c++){
             ExcelCell cell = row.getCell(c);
             if(cell == null){
                 continue;
             }
-            Method method = indexFieldMethod.getIndex2method().get(c);
-            if(method != null){
+            if(indexFieldOperator.existsField(c)){
                 final Object value = cell.getData();
                 final String strValue = String.valueOf(value).trim();
                 if(StringUtils.isBlank(strValue)
@@ -159,17 +158,18 @@ public class ExcelUtils {
                     continue;
                 }
 
-                Field field = indexFieldMethod.getIndex2field().get(c);
-                ExcelDataConverter converter = ConvertFactory.createConverter(field);
+                Field field = indexFieldOperator.getField(c);
+                Class fieldType = indexFieldOperator.getFieldType(c);
+                ExcelDataConverter converter = ConvertFactory.createConverter(field, fieldType);
 
                 Object convertedObj = converter.convert(strValue);
-                method.invoke(obj, convertedObj);
+                indexFieldOperator.setFieldValue(obj, c, convertedObj);
             }
         }
         return obj;
     }
 
-    public static <T> List<T> getEntityListForSheet(byte[] bytes, String fileName, String sheetName, ClassMetadata<T> classMetadata) {
+    public static <T> List<T> getEntityListForSheet(byte[] bytes, String fileName, String sheetName, IClassMetadata<T> classMetadata) {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         try {
             ExcelWorkbookFactory excelWorkbookFactory = getExcelWorkbookFactory(fileName);
@@ -187,14 +187,16 @@ public class ExcelUtils {
             int fieldRow = classMetadata.getFieldRow();
             int rowCount = sheet.getRowCount();
             ExcelRow firstRow = sheet.getRow(fieldRow);
-            IndexFieldMethod indexFieldMethod = genIndexFieldMethod(firstRow, classMetadata);
+
+
+            IIndexFieldOperator indexFieldOperator = classMetadata.genIndexFieldOperator(firstRow);
 
             for (int r = fieldRow + 1; r < rowCount; r++) {
                 ExcelRow row = sheet.getRow(r);
                 if (row == null) {
                     break;
                 }
-                T obj = createDataBean(row, classMetadata, indexFieldMethod);
+                T obj = createDataBean(row, classMetadata, indexFieldOperator);
                 list.add(obj);
             }
 

@@ -15,7 +15,7 @@ import java.util.Map;
  * @author Peter peter.wang@mulberrylearning.cn
  * @version 1.0
  */
-public class IndexFieldMethod {
+public class IndexFieldMethod implements IIndexFieldOperator{
     private Map<Integer, Method> index2method;
     private Map<Integer, Field> index2field;
 
@@ -33,5 +33,31 @@ public class IndexFieldMethod {
 
     public void setIndex2field(Map<Integer, Field> index2field) {
         this.index2field = index2field;
+    }
+
+    @Override
+    public boolean existsField(int index) {
+        Method method = getIndex2method().get(index);
+        return method != null;
+    }
+
+    @Override
+    public void setFieldValue(Object obj, int index, Object value) throws Exception{
+        Method method = getIndex2method().get(index);
+        method.invoke(obj, value);
+    }
+
+    @Override
+    public Class<?> getFieldType(int index) {
+        Field field = index2field.get(index);
+        if(field != null){
+            return field.getType();
+        }
+        return null;
+    }
+
+    @Override
+    public Field getField(int index) {
+        return index2field.get(index);
     }
 }

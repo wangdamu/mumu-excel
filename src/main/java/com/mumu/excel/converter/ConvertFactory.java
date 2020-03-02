@@ -45,16 +45,16 @@ public class ConvertFactory {
         converterMap.put(BigDecimal.class, new BigDecimalConverter());
     }
 
-    public static ExcelDataConverter createConverter(Field field) throws IllegalAccessException, InstantiationException {
-        if (field.getType() == LocalDate.class
-                || field.getType() == LocalDateTime.class) {
+    public static ExcelDataConverter createConverter(Field field, Class fileType) throws IllegalAccessException, InstantiationException {
+        if (fileType == LocalDate.class
+                || fileType == LocalDateTime.class) {
             DatePattern datePattern = field.getAnnotation(DatePattern.class);
             String pattern = null;
             if (datePattern != null) {
                 pattern = datePattern.value();
             }
 
-            if (field.getType() == LocalDate.class) {
+            if (fileType == LocalDate.class) {
                 SmartLocalDateConverter smartLocalDateConverter = new SmartLocalDateConverter();
                 smartLocalDateConverter.setPattern(pattern);
                 return smartLocalDateConverter;
@@ -64,13 +64,15 @@ public class ConvertFactory {
                 return smartLocalDateTimeConverter;
             }
         }else{
-            Converter converter = field.getAnnotation(Converter.class);
-            if(converter != null){
-                Class clz = converter.using();
-                return (ExcelDataConverter) clz.newInstance();
+            if(field != null) {
+                Converter converter = field.getAnnotation(Converter.class);
+                if (converter != null) {
+                    Class clz = converter.using();
+                    return (ExcelDataConverter) clz.newInstance();
+                }
             }
 
-            return converterMap.get(field.getType());
+            return converterMap.get(fileType);
         }
     }
 }

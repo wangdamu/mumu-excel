@@ -21,9 +21,19 @@ import java.util.Map;
  * <p>
  */
 public class MapClassMetadata implements IClassMetadata<Map<String, Object>>{
+
+    private int fieldRow; // 字段行 从0开始
+
+    public MapClassMetadata() {
+    }
+
+    public MapClassMetadata(int fieldRow) {
+        this.fieldRow = fieldRow;
+    }
+
     @Override
     public int getFieldRow() {
-        return 0;
+        return fieldRow;
     }
 
     @Override

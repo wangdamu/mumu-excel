@@ -216,6 +216,7 @@ public class ExcelUtils {
         ExcelEntity excelEntity = (ExcelEntity) clazz.getDeclaredAnnotation(ExcelEntity.class);
         if(excelEntity != null){
             cm.setFieldRow(excelEntity.fieldRow());
+            cm.setSheetName(excelEntity.value());
         }
 
         Map<String, Method> setMethodMap = new HashMap<>();

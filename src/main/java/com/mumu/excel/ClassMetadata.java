@@ -25,6 +25,8 @@ public class ClassMetadata<T>{
 
     private int fieldRow;
 
+    private String sheetName;
+
     public Class<T> getClazz() {
         return clazz;
     }
@@ -56,5 +58,13 @@ public class ClassMetadata<T>{
 
     public void setFieldRow(int fieldRow) {
         this.fieldRow = fieldRow;
+    }
+
+    public String getSheetName() {
+        return sheetName;
+    }
+
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
     }
 }
